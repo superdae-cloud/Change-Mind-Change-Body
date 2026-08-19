@@ -1,0 +1,12 @@
+---
+import { getCollection } from 'astro:content';
+import PillarLayout from '../layouts/PillarLayout.astro';
+
+const tips = (await getCollection('tips', ({ data }) => data.pillar === 'immune-health' && !data.draft))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+---
+<PillarLayout
+  pillarSlug="immune-health"
+  intro="Small daily habits that keep your body's natural defenses strong, all year round."
+  tips={tips}
+/>

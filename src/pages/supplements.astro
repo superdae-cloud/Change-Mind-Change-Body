@@ -1,0 +1,12 @@
+---
+import { getCollection } from 'astro:content';
+import PillarLayout from '../layouts/PillarLayout.astro';
+
+const tips = (await getCollection('tips', ({ data }) => data.pillar === 'supplements' && !data.draft))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+---
+<PillarLayout
+  pillarSlug="supplements"
+  intro="What's worth taking, what's worth skipping, and how to spend your money wisely."
+  tips={tips}
+/>

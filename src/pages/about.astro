@@ -1,0 +1,66 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import PillarCard from '../components/PillarCard.astro';
+import { pillars } from '../data/pillars';
+---
+<BaseLayout
+  title="About"
+  description="Why Change Mine, Change Body exists: free daily habits that change your mind and your body."
+>
+  <Hero
+    eyebrow="About Us"
+    title="Cost-free daily habits that change your mind and your body. That's it."
+    subtitle="No paid tiers. No sign-up walls. No program to buy. Just what we've learned, shared plainly."
+  />
+
+  <section class="section">
+    <div class="container">
+      <p class="eyebrow">Why We Exist</p>
+      <h2>We've lived it, studied it, and now we're sharing it.</h2>
+      <p>
+        Every habit on this site has been tested somewhere real — in our own training, our own
+        kitchens, our own hard days. We've paired that lived experience with continued education
+        in exercise science, nutrition, supplementation, mental health, and immune wellness, and
+        distilled it down to the habits that actually move the needle.
+      </p>
+      <p>
+        We didn't build this to sell you something. Real change doesn't come from a purchase — it
+        comes from a decision, repeated daily, until it becomes who you are. Our job is just to
+        make sure you're never short on good information to build that decision around.
+      </p>
+    </div>
+  </section>
+
+  <section class="section section--muted">
+    <div class="container">
+      <p class="eyebrow">What "Free" Means Here</p>
+      <h2>No sign-up. No paywall. No catch.</h2>
+      <p>
+        Nothing on Change Mine, Change Body is gated behind an email address, a subscription, or a
+        program purchase. We're not building a funnel — we're building a resource. Read what's
+        useful, take what applies to your life, and come back whenever you need the next habit.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <p class="eyebrow">The Five Pillars</p>
+      <h2>Everything we share fits into one of these.</h2>
+      <div class="grid-pillars">
+        {pillars.map((pillar) => <PillarCard pillar={pillar} />)}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--muted">
+    <div class="container">
+      <h2>Change your mind. Change your body. Change everything that comes after.</h2>
+      <p>
+        You don't need a program to start. You need one habit, done today, and then again
+        tomorrow. Pick a pillar above and start there.
+      </p>
+    </div>
+  </section>
+</BaseLayout>

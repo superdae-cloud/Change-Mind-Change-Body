@@ -1,0 +1,75 @@
+---
+import { pillars } from '../data/pillars';
+const year = new Date().getFullYear();
+---
+<footer class="site-footer">
+  <div class="container site-footer__inner">
+    <div>
+      <p class="brand">Change Mine, Change Body</p>
+      <p class="tagline">Free forever. No sign-up. No catch.</p>
+    </div>
+    <nav aria-label="Footer">
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/about">About</a></li>
+        {pillars.map((p) => (
+          <li><a href={`/${p.slug}`}>{p.title}</a></li>
+        ))}
+      </ul>
+    </nav>
+  </div>
+  <div class="container">
+    <p class="copyright">&copy; {year} Change Mine, Change Body.</p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    border-top: 1px solid var(--color-border);
+    background: var(--color-surface);
+    padding-block: var(--space-5);
+    margin-top: var(--space-6);
+  }
+
+  .site-footer__inner {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+
+  .brand {
+    font-weight: 800;
+    margin: 0;
+  }
+
+  .tagline {
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+
+  .site-footer nav ul {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+  }
+
+  .site-footer nav a {
+    text-decoration: none;
+    color: var(--color-text-muted);
+    font-weight: 600;
+  }
+
+  .site-footer nav a:hover {
+    color: var(--color-text);
+  }
+
+  .copyright {
+    margin-top: var(--space-4);
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+  }
+</style>

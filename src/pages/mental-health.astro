@@ -1,0 +1,12 @@
+---
+import { getCollection } from 'astro:content';
+import PillarLayout from '../layouts/PillarLayout.astro';
+
+const tips = (await getCollection('tips', ({ data }) => data.pillar === 'mental-health' && !data.draft))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+---
+<PillarLayout
+  pillarSlug="mental-health"
+  intro="Your body follows your mind. These habits build the resilience and consistency that make everything else possible."
+  tips={tips}
+/>

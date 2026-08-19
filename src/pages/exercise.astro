@@ -1,0 +1,12 @@
+---
+import { getCollection } from 'astro:content';
+import PillarLayout from '../layouts/PillarLayout.astro';
+
+const tips = (await getCollection('tips', ({ data }) => data.pillar === 'exercise' && !data.draft))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+---
+<PillarLayout
+  pillarSlug="exercise"
+  intro="You don't need a gym membership to build strength and energy — you need habits you'll actually keep. Start with one of these."
+  tips={tips}
+/>

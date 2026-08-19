@@ -1,0 +1,27 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import BaseLayout from './BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import TipCard from '../components/TipCard.astro';
+import { pillars } from '../data/pillars';
+
+interface Props {
+  pillarSlug: 'exercise' | 'diet' | 'supplements' | 'mental-health' | 'immune-health';
+  intro: string;
+  tips: CollectionEntry<'tips'>[];
+}
+const { pillarSlug, intro, tips } = Astro.props;
+const pillar = pillars.find((p) => p.slug === pillarSlug)!;
+---
+<BaseLayout title={pillar.title} description={pillar.blurb}>
+  <Hero eyebrow={`${pillar.emoji} Pillar`} title={pillar.title} subtitle={intro} />
+  <div class="container">
+    {tips.length > 0 ? (
+      <div class="grid-tips">
+        {tips.map((tip) => <TipCard tip={tip} />)}
+      </div>
+    ) : (
+      <p>New tips for this pillar are coming soon.</p>
+    )}
+  </div>
+</BaseLayout>

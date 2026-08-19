@@ -1,0 +1,12 @@
+---
+import { getCollection } from 'astro:content';
+import PillarLayout from '../layouts/PillarLayout.astro';
+
+const tips = (await getCollection('tips', ({ data }) => data.pillar === 'diet' && !data.draft))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+---
+<PillarLayout
+  pillarSlug="diet"
+  intro="Forget restrictive diets. These are sustainable eating habits you can keep for life."
+  tips={tips}
+/>

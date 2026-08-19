@@ -1,0 +1,109 @@
+---
+---
+<div class="chat-widget">
+  <form class="chat-widget__form" id="chat-form">
+    <label for="chat-input">Ask us a question</label>
+    <textarea
+      id="chat-input"
+      name="message"
+      rows="3"
+      placeholder="e.g. What's a good first habit for better sleep?"
+      required
+    ></textarea>
+    <button type="submit" class="button" id="chat-submit">Ask</button>
+  </form>
+  <div class="chat-widget__reply" id="chat-reply" hidden></div>
+</div>
+
+<style>
+  .chat-widget {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: var(--space-4);
+    max-width: 640px;
+  }
+
+  .chat-widget__form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .chat-widget__form label {
+    font-weight: 700;
+  }
+
+  .chat-widget__form textarea {
+    font: inherit;
+    padding: var(--space-2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    resize: vertical;
+  }
+
+  .chat-widget__form button {
+    align-self: flex-start;
+    cursor: pointer;
+  }
+
+  .chat-widget__form button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .chat-widget__reply {
+    margin-top: var(--space-4);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--color-border);
+    color: var(--color-text);
+    white-space: pre-wrap;
+  }
+
+  .chat-widget__reply--error {
+    color: #b3261e;
+  }
+</style>
+
+<script>
+  const form = document.getElementById('chat-form') as HTMLFormElement;
+  const input = document.getElementById('chat-input') as HTMLTextAreaElement;
+  const submitButton = document.getElementById('chat-submit') as HTMLButtonElement;
+  const replyBox = document.getElementById('chat-reply') as HTMLDivElement;
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    const message = input.value.trim();
+    if (!message) return;
+
+    submitButton.disabled = true;
+    submitButton.textContent = 'Asking...';
+    replyBox.hidden = false;
+    replyBox.classList.remove('chat-widget__reply--error');
+    replyBox.textContent = 'Thinking...';
+
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ message }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error ?? 'Something went wrong');
+      }
+
+      replyBox.textContent = data.reply;
+    } catch (error) {
+      replyBox.classList.add('chat-widget__reply--error');
+      replyBox.textContent = error instanceof Error ? error.message : 'Something went wrong';
+    } finally {
+      submitButton.disabled = false;
+      submitButton.textContent = 'Ask';
+    }
+  });
+</script>
