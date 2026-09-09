@@ -7,10 +7,11 @@ interface Props {
   showPillarLink?: boolean;
 }
 const { tip, showPillarLink = false } = Astro.props;
-const { title, summary, tags, pillar } = tip.data;
+const { title, summary, tags, pillar, image } = tip.data;
 const pillarInfo = pillars.find((p) => p.slug === pillar);
 ---
 <article class="tip-card" style={`--pillar-color: ${pillarInfo?.color ?? 'var(--color-accent)'}`}>
+  {image && <img class="tip-card__image" src={image} alt="" />}
   {showPillarLink && pillarInfo && (
     <a href={`/${pillarInfo.slug}`} class="tip-card__pillar">{pillarInfo.emoji} {pillarInfo.title}</a>
   )}
@@ -30,6 +31,16 @@ const pillarInfo = pillars.find((p) => p.slug === pillar);
     border-left: 4px solid var(--pillar-color);
     border-radius: var(--radius);
     padding: var(--space-4);
+  }
+
+  .tip-card__image {
+    display: block;
+    width: calc(100% + 2 * var(--space-4));
+    margin: calc(-1 * var(--space-4)) calc(-1 * var(--space-4)) var(--space-3);
+    max-width: none;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border-radius: var(--radius) var(--radius) 0 0;
   }
 
   .tip-card__pillar {

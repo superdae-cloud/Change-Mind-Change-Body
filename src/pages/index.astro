@@ -5,6 +5,7 @@ import PillarCard from '../components/PillarCard.astro';
 import TipCard from '../components/TipCard.astro';
 import ChatWidget from '../components/ChatWidget.astro';
 import { pillars } from '../data/pillars';
+import home from '../content/pages/home.json';
 
 const featuredTips = (await getCollection('tips', ({ data }) => data.featured && !data.draft))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
@@ -25,34 +26,26 @@ const featuredTips = (await getCollection('tips', ({ data }) => data.featured &&
 
   <section class="hero">
     <div class="container hero__copy">
-      <p class="eyebrow">Change Mind, Change Body</p>
-      <h1>Change your mind. Change your body. It starts with one habit.</h1>
-      <p class="hero__subtitle">
-        Every tip on this site is completely free — no sign-up, no program to buy, no catch.
-        Just daily habits we've learned through real experience and continued education, shared
-        so you can put them to use today.
-      </p>
-      <a href="#pillars" class="button">Explore the Pillars</a>
+      <p class="eyebrow">{home.heroEyebrow}</p>
+      <h1>{home.heroTitle}</h1>
+      <p class="hero__subtitle">{home.heroSubtitle}</p>
+      <a href="#pillars" class="button">{home.heroButtonLabel}</a>
     </div>
   </section>
 
   <section class="section section--muted">
     <div class="container">
-      <p class="eyebrow">Our Mission</p>
-      <h2>Free knowledge, shared without strings attached.</h2>
-      <p>
-        We believe changing your body starts with changing your mind — and that the habits which
-        make that possible shouldn't be locked behind a paywall. Everything here is free to read,
-        free to use, forever.
-      </p>
-      <a href="/about" class="button button--outline">Read Our Story &rarr;</a>
+      <p class="eyebrow">{home.missionEyebrow}</p>
+      <h2>{home.missionHeading}</h2>
+      <p>{home.missionBody}</p>
+      <a href="/about" class="button button--outline">{home.missionButtonLabel}</a>
     </div>
   </section>
 
   <section class="section" id="pillars">
     <div class="container">
-      <p class="eyebrow">Five Pillars</p>
-      <h2>Pick a pillar, start today.</h2>
+      <p class="eyebrow">{home.pillarsEyebrow}</p>
+      <h2>{home.pillarsHeading}</h2>
       <div class="grid-pillars">
         {pillars.map((pillar) => <PillarCard pillar={pillar} />)}
       </div>
@@ -62,8 +55,8 @@ const featuredTips = (await getCollection('tips', ({ data }) => data.featured &&
   {featuredTips.length > 0 && (
     <section class="section section--muted">
       <div class="container">
-        <p class="eyebrow">Recent Picks</p>
-        <h2>A few habits worth starting this week.</h2>
+        <p class="eyebrow">{home.recentPicksEyebrow}</p>
+        <h2>{home.recentPicksHeading}</h2>
         <div class="grid-tips">
           {featuredTips.map((tip) => <TipCard tip={tip} showPillarLink />)}
         </div>
@@ -73,8 +66,8 @@ const featuredTips = (await getCollection('tips', ({ data }) => data.featured &&
 
   <section class="section section--muted">
     <div class="container">
-      <p class="eyebrow">Ask Us</p>
-      <h2>Have a question? Ask right here.</h2>
+      <p class="eyebrow">{home.askEyebrow}</p>
+      <h2>{home.askHeading}</h2>
       <ChatWidget />
     </div>
   </section>

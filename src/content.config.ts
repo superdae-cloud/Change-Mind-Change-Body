@@ -18,6 +18,7 @@ const tips = defineCollection({
     tags: z.array(z.string()).optional().default([]),
     featured: z.boolean().optional().default(false),
     draft: z.boolean().optional().default(false),
+    image: z.string().optional(),
   }),
 });
 
