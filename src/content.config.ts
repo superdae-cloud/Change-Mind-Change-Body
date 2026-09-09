@@ -1,11 +1,18 @@
-import { defineCollection, z } from 'astro:content';
-import { glob } from 'astro/loaders';
+import { defineCollection, z } from "astro:content";
+import { glob } from "astro/loaders";
 
 const tips = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './src/content/tips' }),
+  loader: glob({ pattern: "**/*.md", base: "./src/content/tips" }),
   schema: z.object({
     title: z.string(),
-    pillar: z.enum(['exercise', 'diet', 'supplements', 'mental-health', 'immune-health']),
+    pillar: z.enum([
+      "exercise",
+      "diet",
+      "supplements",
+      "mental-health",
+      "immune-health",
+      "bro-science",
+    ]),
     summary: z.string().max(200),
     date: z.coerce.date(),
     tags: z.array(z.string()).optional().default([]),
