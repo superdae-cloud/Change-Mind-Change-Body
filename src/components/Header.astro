@@ -17,7 +17,13 @@ const { transparent = false } = Astro.props;
 
 <script>
   document.getElementById('login-trigger')?.addEventListener('click', () => {
-    window.netlifyIdentity?.open('login');
+    const identity = window.netlifyIdentity;
+    if (!identity) return;
+    if (identity.currentUser()) {
+      window.location.href = '/admin/';
+    } else {
+      identity.open('login');
+    }
   });
 </script>
 
