@@ -35,6 +35,18 @@ export async function getFileSha(path: string): Promise<string | null> {
   return file?.sha ?? null;
 }
 
+export async function listDirectory(path: string): Promise<{ name: string; path: string }[]> {
+  const res = await fetch(
+    `https://api.github.com/repos/${OWNER}/${REPO}/contents/${apiPath(path)}?ref=${BRANCH}`,
+    { headers: authHeaders() },
+  );
+  if (res.status === 404) return [];
+  if (!res.ok) throw new Error(`GitHub GET ${path} failed: ${res.status} ${await res.text()}`);
+  const data = (await res.json()) as unknown;
+  if (!Array.isArray(data)) return [];
+  return data.map((entry) => ({ name: (entry as { name: string }).name, path: (entry as { path: string }).path }));
+}
+
 export async function putFile(path: string, content: string, message: string): Promise<void> {
   const sha = await getFileSha(path);
   const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${apiPath(path)}`, {

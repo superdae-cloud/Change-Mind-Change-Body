@@ -1,18 +1,47 @@
 ---
 export const prerender = false;
 
+import matter from 'gray-matter';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getCollection } from 'astro:content';
 import { pillars } from '../../data/pillars';
 import { SESSION_COOKIE_NAME, verifySessionToken } from '../../lib/session';
+import { getFileContent, listDirectory } from '../../lib/github';
+
+interface DashboardTip {
+  slug: string;
+  title: string;
+  draft: boolean;
+  featured: boolean;
+}
 
 const authed = verifySessionToken(Astro.cookies.get(SESSION_COOKIE_NAME)?.value);
 const loginFailed = Astro.url.searchParams.has('error');
 const justDeleted = Astro.url.searchParams.has('deleted');
 
-const tips = authed
-  ? (await getCollection('tips')).sort(
-      (a, b) => a.data.pillar.localeCompare(b.data.pillar) || a.data.title.localeCompare(b.data.title),
+// Read live from GitHub (not the local content collection) so a save/delete
+// shows up here immediately, without waiting for a rebuild to pick up the
+// locally checked-out files.
+const tipsByPillar = authed
+  ? await Promise.all(
+      pillars.map(async (pillar) => {
+        const files = await listDirectory(`src/content/tips/${pillar.slug}`);
+        const tips: DashboardTip[] = await Promise.all(
+          files
+            .filter((f) => f.name.endsWith('.md'))
+            .map(async (f) => {
+              const raw = await getFileContent(f.path);
+              const parsed = matter(raw ?? '');
+              return {
+                slug: f.name.replace(/\.md$/, ''),
+                title: String(parsed.data.title ?? f.name),
+                draft: Boolean(parsed.data.draft),
+                featured: Boolean(parsed.data.featured),
+              };
+            }),
+        );
+        tips.sort((a, b) => a.title.localeCompare(b.title));
+        return { pillar, tips };
+      }),
     )
   : [];
 ---
@@ -61,23 +90,21 @@ const tips = authed
           </ul>
         </div>
 
-        {pillars.map((pillar) => (
+        {tipsByPillar.map(({ pillar, tips }) => (
           <div class="admin-card">
             <div class="admin-card__header">
               <h2>{pillar.emoji} {pillar.title}</h2>
               <a href={`/admin/tips/${pillar.slug}/new`} class="button button--outline">+ New Tip</a>
             </div>
             <ul class="admin-list">
-              {tips
-                .filter((tip) => tip.data.pillar === pillar.slug)
-                .map((tip) => (
-                  <li>
-                    <a href={`/admin/tips/${pillar.slug}/${tip.id.split('/').pop()}`}>{tip.data.title}</a>
-                    {tip.data.draft && <span class="admin-badge">draft</span>}
-                    {tip.data.featured && <span class="admin-badge admin-badge--accent">featured</span>}
-                  </li>
-                ))}
-              {tips.filter((tip) => tip.data.pillar === pillar.slug).length === 0 && (
+              {tips.map((tip) => (
+                <li>
+                  <a href={`/admin/tips/${pillar.slug}/${tip.slug}`}>{tip.title}</a>
+                  {tip.draft && <span class="admin-badge">draft</span>}
+                  {tip.featured && <span class="admin-badge admin-badge--accent">featured</span>}
+                </li>
+              ))}
+              {tips.length === 0 && (
                 <li class="admin-empty">No tips yet.</li>
               )}
             </ul>
