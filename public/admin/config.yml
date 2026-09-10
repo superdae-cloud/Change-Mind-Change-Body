@@ -1,0 +1,175 @@
+backend:
+  name: git-gateway
+  branch: main
+
+# Lets you test the CMS locally with `npx decap-server` running alongside `npm run dev`,
+# without needing Netlify Identity/Git Gateway configured yet.
+local_backend: true
+
+media_folder: "public/uploads"
+public_folder: "/uploads"
+
+logo_url: /images/brand-badge.png
+
+collections:
+  - name: "tips_exercise"
+    label: "Tips — Exercise"
+    folder: "src/content/tips/exercise"
+    create: true
+    slug: "{{slug}}"
+    identifier_field: title
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Pillar", name: "pillar", widget: "hidden", default: "exercise" }
+      - { label: "Summary", name: "summary", widget: "string", pattern: ["^.{1,200}$", "Must be 200 characters or fewer"] }
+      - { label: "Date", name: "date", widget: "datetime", format: "YYYY-MM-DD", date_format: "YYYY-MM-DD", time_format: false }
+      - { label: "Tags", name: "tags", widget: "list", required: false, default: [] }
+      - { label: "Featured", name: "featured", widget: "boolean", required: false, default: false }
+      - { label: "Draft", name: "draft", widget: "boolean", required: false, default: false }
+      - { label: "Image", name: "image", widget: "image", required: false }
+      - { label: "Body", name: "body", widget: "markdown" }
+
+  - name: "tips_diet"
+    label: "Tips — Diet"
+    folder: "src/content/tips/diet"
+    create: true
+    slug: "{{slug}}"
+    identifier_field: title
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Pillar", name: "pillar", widget: "hidden", default: "diet" }
+      - { label: "Summary", name: "summary", widget: "string", pattern: ["^.{1,200}$", "Must be 200 characters or fewer"] }
+      - { label: "Date", name: "date", widget: "datetime", format: "YYYY-MM-DD", date_format: "YYYY-MM-DD", time_format: false }
+      - { label: "Tags", name: "tags", widget: "list", required: false, default: [] }
+      - { label: "Featured", name: "featured", widget: "boolean", required: false, default: false }
+      - { label: "Draft", name: "draft", widget: "boolean", required: false, default: false }
+      - { label: "Image", name: "image", widget: "image", required: false }
+      - { label: "Body", name: "body", widget: "markdown" }
+
+  - name: "tips_supplements"
+    label: "Tips — Supplements"
+    folder: "src/content/tips/supplements"
+    create: true
+    slug: "{{slug}}"
+    identifier_field: title
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Pillar", name: "pillar", widget: "hidden", default: "supplements" }
+      - { label: "Summary", name: "summary", widget: "string", pattern: ["^.{1,200}$", "Must be 200 characters or fewer"] }
+      - { label: "Date", name: "date", widget: "datetime", format: "YYYY-MM-DD", date_format: "YYYY-MM-DD", time_format: false }
+      - { label: "Tags", name: "tags", widget: "list", required: false, default: [] }
+      - { label: "Featured", name: "featured", widget: "boolean", required: false, default: false }
+      - { label: "Draft", name: "draft", widget: "boolean", required: false, default: false }
+      - { label: "Image", name: "image", widget: "image", required: false }
+      - { label: "Body", name: "body", widget: "markdown" }
+
+  - name: "tips_mental_health"
+    label: "Tips — Mental Health"
+    folder: "src/content/tips/mental-health"
+    create: true
+    slug: "{{slug}}"
+    identifier_field: title
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Pillar", name: "pillar", widget: "hidden", default: "mental-health" }
+      - { label: "Summary", name: "summary", widget: "string", pattern: ["^.{1,200}$", "Must be 200 characters or fewer"] }
+      - { label: "Date", name: "date", widget: "datetime", format: "YYYY-MM-DD", date_format: "YYYY-MM-DD", time_format: false }
+      - { label: "Tags", name: "tags", widget: "list", required: false, default: [] }
+      - { label: "Featured", name: "featured", widget: "boolean", required: false, default: false }
+      - { label: "Draft", name: "draft", widget: "boolean", required: false, default: false }
+      - { label: "Image", name: "image", widget: "image", required: false }
+      - { label: "Body", name: "body", widget: "markdown" }
+
+  - name: "tips_immune_health"
+    label: "Tips — Immune Health"
+    folder: "src/content/tips/immune-health"
+    create: true
+    slug: "{{slug}}"
+    identifier_field: title
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Pillar", name: "pillar", widget: "hidden", default: "immune-health" }
+      - { label: "Summary", name: "summary", widget: "string", pattern: ["^.{1,200}$", "Must be 200 characters or fewer"] }
+      - { label: "Date", name: "date", widget: "datetime", format: "YYYY-MM-DD", date_format: "YYYY-MM-DD", time_format: false }
+      - { label: "Tags", name: "tags", widget: "list", required: false, default: [] }
+      - { label: "Featured", name: "featured", widget: "boolean", required: false, default: false }
+      - { label: "Draft", name: "draft", widget: "boolean", required: false, default: false }
+      - { label: "Image", name: "image", widget: "image", required: false }
+      - { label: "Body", name: "body", widget: "markdown" }
+
+  - name: "tips_bro_science"
+    label: "Tips — Bro Science"
+    folder: "src/content/tips/bro-science"
+    create: true
+    slug: "{{slug}}"
+    identifier_field: title
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Pillar", name: "pillar", widget: "hidden", default: "bro-science" }
+      - { label: "Summary", name: "summary", widget: "string", pattern: ["^.{1,200}$", "Must be 200 characters or fewer"] }
+      - { label: "Date", name: "date", widget: "datetime", format: "YYYY-MM-DD", date_format: "YYYY-MM-DD", time_format: false }
+      - { label: "Tags", name: "tags", widget: "list", required: false, default: [] }
+      - { label: "Featured", name: "featured", widget: "boolean", required: false, default: false }
+      - { label: "Draft", name: "draft", widget: "boolean", required: false, default: false }
+      - { label: "Image", name: "image", widget: "image", required: false }
+      - { label: "Body", name: "body", widget: "markdown" }
+
+  - name: "pillars"
+    label: "Pillar Cards"
+    files:
+      - label: "Pillars"
+        name: "pillars"
+        file: "src/data/pillars.json"
+        fields:
+          - name: "pillars"
+            label: "Pillars"
+            widget: "list"
+            min: 6
+            max: 6
+            summary: "{{fields.title}}"
+            fields:
+              - { label: "Slug", name: "slug", widget: "select", options: ["exercise", "diet", "supplements", "mental-health", "immune-health", "bro-science"] }
+              - { label: "Title", name: "title", widget: "string" }
+              - { label: "Emoji", name: "emoji", widget: "string" }
+              - { label: "Blurb", name: "blurb", widget: "string" }
+              - { label: "Color", name: "color", widget: "color" }
+
+  - name: "pages"
+    label: "Page Copy"
+    files:
+      - label: "Home Page"
+        name: "home"
+        file: "src/content/pages/home.json"
+        fields:
+          - { label: "Hero Eyebrow", name: "heroEyebrow", widget: "string" }
+          - { label: "Hero Title", name: "heroTitle", widget: "string" }
+          - { label: "Hero Subtitle", name: "heroSubtitle", widget: "text" }
+          - { label: "Hero Button Label", name: "heroButtonLabel", widget: "string" }
+          - { label: "Mission Eyebrow", name: "missionEyebrow", widget: "string" }
+          - { label: "Mission Heading", name: "missionHeading", widget: "string" }
+          - { label: "Mission Body", name: "missionBody", widget: "text" }
+          - { label: "Mission Button Label", name: "missionButtonLabel", widget: "string" }
+          - { label: "Pillars Eyebrow", name: "pillarsEyebrow", widget: "string" }
+          - { label: "Pillars Heading", name: "pillarsHeading", widget: "string" }
+          - { label: "Recent Picks Eyebrow", name: "recentPicksEyebrow", widget: "string" }
+          - { label: "Recent Picks Heading", name: "recentPicksHeading", widget: "string" }
+          - { label: "Ask Eyebrow", name: "askEyebrow", widget: "string" }
+          - { label: "Ask Heading", name: "askHeading", widget: "string" }
+      - label: "About Page"
+        name: "about"
+        file: "src/content/pages/about.json"
+        fields:
+          - { label: "Hero Eyebrow", name: "heroEyebrow", widget: "string" }
+          - { label: "Hero Title", name: "heroTitle", widget: "string" }
+          - { label: "Hero Subtitle", name: "heroSubtitle", widget: "text" }
+          - { label: "Why Eyebrow", name: "whyEyebrow", widget: "string" }
+          - { label: "Why Heading", name: "whyHeading", widget: "string" }
+          - { label: "Why Paragraph 1", name: "whyParagraph1", widget: "text" }
+          - { label: "Why Paragraph 2", name: "whyParagraph2", widget: "text" }
+          - { label: "Free Eyebrow", name: "freeEyebrow", widget: "string" }
+          - { label: "Free Heading", name: "freeHeading", widget: "string" }
+          - { label: "Free Paragraph", name: "freeParagraph", widget: "text" }
+          - { label: "Pillars Eyebrow", name: "pillarsEyebrow", widget: "string" }
+          - { label: "Pillars Heading", name: "pillarsHeading", widget: "string" }
+          - { label: "Closing Heading", name: "closingHeading", widget: "string" }
+          - { label: "Closing Paragraph", name: "closingParagraph", widget: "text" }

@@ -1,13 +1,11 @@
 /// <reference types="astro/client" />
 
-interface ImportMetaEnv {
-  readonly ANTHROPIC_API_KEY: string;
-  readonly ADMIN_USERNAME: string;
-  readonly ADMIN_PASSWORD: string;
-  readonly SESSION_SECRET: string;
-  readonly GITHUB_TOKEN: string;
+interface NetlifyIdentityWidget {
+  on(event: string, callback: (...args: any[]) => void): void;
+  open(tab?: string): void;
+  close(): void;
 }
 
-interface ImportMeta {
-  readonly env: ImportMetaEnv;
+interface Window {
+  netlifyIdentity?: NetlifyIdentityWidget;
 }
