@@ -1,0 +1,227 @@
+---
+export const prerender = false;
+
+import matter from 'gray-matter';
+import BaseLayout from '../../../../layouts/BaseLayout.astro';
+import { getFileContent } from '../../../../lib/github';
+
+const VALID_PILLARS = new Set([
+  'exercise',
+  'diet',
+  'supplements',
+  'mental-health',
+  'immune-health',
+  'bro-science',
+]);
+
+const { pillar, slug } = Astro.params as { pillar: string; slug: string };
+
+if (!pillar || !VALID_PILLARS.has(pillar)) {
+  return Astro.redirect('/admin');
+}
+
+const isNew = slug === 'new';
+
+let title = '';
+let summary = '';
+let dateValue = new Date().toISOString().slice(0, 10);
+let tags = '';
+let featured = false;
+let draft = false;
+let image = '';
+let body = '';
+
+if (!isNew) {
+  const raw = await getFileContent(`src/content/tips/${pillar}/${slug}.md`);
+  if (raw === null) {
+    return Astro.redirect('/admin');
+  }
+  const parsed = matter(raw);
+  title = String(parsed.data.title ?? '');
+  summary = String(parsed.data.summary ?? '');
+  dateValue = new Date(parsed.data.date).toISOString().slice(0, 10);
+  tags = Array.isArray(parsed.data.tags) ? parsed.data.tags.join(', ') : '';
+  featured = Boolean(parsed.data.featured);
+  draft = Boolean(parsed.data.draft);
+  image = String(parsed.data.image ?? '');
+  body = parsed.content.trim();
+}
+
+const error = Astro.url.searchParams.get('error');
+const saved = Astro.url.searchParams.has('saved');
+---
+
+<BaseLayout title={isNew ? 'New Tip' : `Edit: ${title}`} description="Content editor">
+  <section class="container admin-form-page">
+    <p><a href="/admin">&larr; Back to dashboard</a></p>
+    <h1>{isNew ? `New ${pillar} Tip` : `Edit Tip`}</h1>
+
+    {error && <p class="admin-message admin-message--error">{error}</p>}
+    {saved && <p class="admin-message">Saved.</p>}
+
+    <form method="POST" action="/api/admin/tips/save" class="admin-form">
+      <input type="hidden" name="pillar" value={pillar} />
+      <input type="hidden" name="originalSlug" value={isNew ? '' : slug} />
+
+      <label>
+        Title
+        <input type="text" name="title" required value={title} />
+      </label>
+
+      <label>
+        Summary (max 200 characters)
+        <textarea name="summary" maxlength="200" rows="2" required>{summary}</textarea>
+      </label>
+
+      <label>
+        Date
+        <input type="date" name="date" required value={dateValue} />
+      </label>
+
+      <label>
+        Tags (comma-separated)
+        <input type="text" name="tags" value={tags} placeholder="e.g. sleep, recovery" />
+      </label>
+
+      <label class="admin-checkbox">
+        <input type="checkbox" name="featured" value="1" checked={featured} />
+        Featured on homepage
+      </label>
+
+      <label class="admin-checkbox">
+        <input type="checkbox" name="draft" value="1" checked={draft} />
+        Draft (hidden from the site)
+      </label>
+
+      <label>
+        Image
+        <input type="file" id="image-file" accept="image/*" />
+        <input type="hidden" name="image" id="image-url" value={image} />
+        <span id="image-status" class="admin-hint">{image ? `Current: ${image}` : 'No image set.'}</span>
+      </label>
+
+      <label>
+        Body (Markdown)
+        <textarea name="body" rows="16" required>{body}</textarea>
+      </label>
+
+      <button type="submit" class="button">Save</button>
+    </form>
+
+    {!isNew && (
+      <form method="POST" action="/api/admin/tips/delete" class="admin-delete-form">
+        <input type="hidden" name="pillar" value={pillar} />
+        <input type="hidden" name="slug" value={slug} />
+        <button type="submit" class="button button--outline" data-confirm="Delete this tip? This cannot be undone.">
+          Delete Tip
+        </button>
+      </form>
+    )}
+  </section>
+
+  <script>
+    const fileInput = document.getElementById('image-file') as HTMLInputElement | null;
+    const urlInput = document.getElementById('image-url') as HTMLInputElement | null;
+    const status = document.getElementById('image-status');
+
+    fileInput?.addEventListener('change', async () => {
+      const file = fileInput.files?.[0];
+      if (!file || !urlInput) return;
+
+      if (status) status.textContent = 'Uploading…';
+
+      const formData = new FormData();
+      formData.append('image', file);
+
+      try {
+        const res = await fetch('/api/upload', { method: 'POST', body: formData });
+        if (!res.ok) throw new Error('Upload failed');
+        const data = (await res.json()) as { url: string };
+        urlInput.value = data.url;
+        if (status) status.textContent = `Uploaded: ${data.url}`;
+      } catch {
+        if (status) status.textContent = 'Upload failed. Try again.';
+      }
+    });
+
+    document.querySelectorAll<HTMLButtonElement>('[data-confirm]').forEach((button) => {
+      button.addEventListener('click', (event) => {
+        if (!window.confirm(button.dataset.confirm ?? 'Are you sure?')) {
+          event.preventDefault();
+        }
+      });
+    });
+  </script>
+
+  <style>
+    .admin-form-page {
+      padding-block: var(--space-6);
+      max-width: 40rem;
+    }
+
+    .admin-form {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+      margin-top: var(--space-4);
+    }
+
+    .admin-form label {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-1);
+      font-weight: 600;
+    }
+
+    .admin-checkbox {
+      flex-direction: row !important;
+      align-items: center;
+      gap: var(--space-2) !important;
+    }
+
+    .admin-form input,
+    .admin-form textarea {
+      font: inherit;
+      padding: var(--space-2);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      background: var(--color-surface);
+      color: var(--color-text);
+    }
+
+    .admin-form textarea {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      resize: vertical;
+    }
+
+    .admin-hint {
+      font-weight: 400;
+      font-size: 0.85rem;
+      color: var(--color-text-muted);
+      word-break: break-all;
+    }
+
+    .admin-form button {
+      align-self: flex-start;
+      cursor: pointer;
+    }
+
+    .admin-delete-form {
+      margin-top: var(--space-4);
+    }
+
+    .admin-message {
+      padding: var(--space-2) var(--space-3);
+      border-radius: 8px;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      margin-bottom: var(--space-3);
+    }
+
+    .admin-message--error {
+      color: #b3261e;
+      border-color: #f2c0bb;
+      background: #fdf0ee;
+    }
+  </style>
+</BaseLayout>

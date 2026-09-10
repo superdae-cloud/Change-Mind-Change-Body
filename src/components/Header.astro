@@ -9,17 +9,9 @@ const { transparent = false } = Astro.props;
 <header class:list={['site-header', { 'site-header--transparent': transparent }]}>
   <div class="container site-header__inner">
     <Nav light={transparent} />
-    <button type="button" id="login-trigger" class:list={['login-button', { 'login-button--light': transparent }]}>
-      Admin
-    </button>
+    <a href="/admin" class:list={['login-button', { 'login-button--light': transparent }]}>Admin</a>
   </div>
 </header>
-
-<script>
-  document.getElementById('login-trigger')?.addEventListener('click', () => {
-    window.netlifyIdentity?.open('login');
-  });
-</script>
 
 <style>
   .site-header {
@@ -51,12 +43,12 @@ const { transparent = false } = Astro.props;
   .login-button {
     font: inherit;
     font-weight: 600;
+    text-decoration: none;
     background: none;
     border: 1px solid var(--color-border);
     border-radius: var(--radius);
     color: var(--color-text-muted);
     padding: 0.4rem 0.9rem;
-    cursor: pointer;
   }
 
   .login-button:hover {

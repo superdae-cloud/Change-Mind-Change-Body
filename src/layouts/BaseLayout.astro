@@ -18,7 +18,6 @@ const { title, description, transparentHeader = false } = Astro.props;
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title} | Change Mind, Change Body</title>
     <meta name="description" content={description} />
-    <script is:inline src="https://identity.netlify.com/v1/netlify-identity-widget.js" defer></script>
   </head>
   <body>
     <Header transparent={transparentHeader} />
@@ -26,17 +25,5 @@ const { title, description, transparentHeader = false } = Astro.props;
       <slot />
     </main>
     <Footer />
-    <script>
-      const identity = window.netlifyIdentity;
-      if (identity) {
-        identity.on('init', (user) => {
-          if (!user) {
-            identity.on('login', () => {
-              document.location.href = '/admin/';
-            });
-          }
-        });
-      }
-    </script>
   </body>
 </html>

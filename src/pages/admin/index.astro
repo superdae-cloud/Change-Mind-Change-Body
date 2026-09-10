@@ -1,0 +1,207 @@
+---
+export const prerender = false;
+
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import { pillars } from '../../data/pillars';
+import { SESSION_COOKIE_NAME, verifySessionToken } from '../../lib/session';
+
+const authed = verifySessionToken(Astro.cookies.get(SESSION_COOKIE_NAME)?.value);
+const loginFailed = Astro.url.searchParams.has('error');
+const justDeleted = Astro.url.searchParams.has('deleted');
+
+const tips = authed
+  ? (await getCollection('tips')).sort(
+      (a, b) => a.data.pillar.localeCompare(b.data.pillar) || a.data.title.localeCompare(b.data.title),
+    )
+  : [];
+---
+
+<BaseLayout title="Admin" description="Content editor for Change Mind, Change Body">
+  {
+    !authed ? (
+      <section class="container admin-login">
+        <h1>Admin Login</h1>
+        {loginFailed && <p class="admin-message admin-message--error">Incorrect username or password.</p>}
+        <form method="POST" action="/api/admin/login" class="admin-form">
+          <label>
+            Username
+            <input type="text" name="username" autocomplete="username" required />
+          </label>
+          <label>
+            Password
+            <input type="password" name="password" autocomplete="current-password" required />
+          </label>
+          <button type="submit" class="button">Log In</button>
+        </form>
+      </section>
+    ) : (
+      <section class="container admin-dashboard">
+        <div class="admin-dashboard__header">
+          <h1>Content Editor</h1>
+          <form method="POST" action="/api/admin/logout">
+            <button type="submit" class="button button--outline">Log Out</button>
+          </form>
+        </div>
+
+        {justDeleted && <p class="admin-message">Tip deleted.</p>}
+
+        <div class="admin-card">
+          <h2>Site Pages</h2>
+          <ul class="admin-list">
+            <li>
+              <a href="/admin/pillars">Edit Pillar Cards</a>
+            </li>
+            <li>
+              <a href="/admin/pages/home">Edit Home Page Copy</a>
+            </li>
+            <li>
+              <a href="/admin/pages/about">Edit About Page Copy</a>
+            </li>
+          </ul>
+        </div>
+
+        {pillars.map((pillar) => (
+          <div class="admin-card">
+            <div class="admin-card__header">
+              <h2>{pillar.emoji} {pillar.title}</h2>
+              <a href={`/admin/tips/${pillar.slug}/new`} class="button button--outline">+ New Tip</a>
+            </div>
+            <ul class="admin-list">
+              {tips
+                .filter((tip) => tip.data.pillar === pillar.slug)
+                .map((tip) => (
+                  <li>
+                    <a href={`/admin/tips/${pillar.slug}/${tip.id.split('/').pop()}`}>{tip.data.title}</a>
+                    {tip.data.draft && <span class="admin-badge">draft</span>}
+                    {tip.data.featured && <span class="admin-badge admin-badge--accent">featured</span>}
+                  </li>
+                ))}
+              {tips.filter((tip) => tip.data.pillar === pillar.slug).length === 0 && (
+                <li class="admin-empty">No tips yet.</li>
+              )}
+            </ul>
+          </div>
+        ))}
+      </section>
+    )
+  }
+</BaseLayout>
+
+<style>
+  .admin-login,
+  .admin-dashboard {
+    padding-block: var(--space-6);
+    max-width: 40rem;
+  }
+
+  .admin-dashboard {
+    max-width: 48rem;
+  }
+
+  .admin-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    max-width: 24rem;
+  }
+
+  .admin-form label {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    font-weight: 600;
+  }
+
+  .admin-form input,
+  .admin-form textarea,
+  .admin-form select {
+    font: inherit;
+    padding: var(--space-2);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    background: var(--color-surface);
+    color: var(--color-text);
+  }
+
+  .admin-form button {
+    align-self: flex-start;
+    cursor: pointer;
+  }
+
+  .admin-message {
+    padding: var(--space-2) var(--space-3);
+    border-radius: 8px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    margin-bottom: var(--space-3);
+  }
+
+  .admin-message--error {
+    color: #b3261e;
+    border-color: #f2c0bb;
+    background: #fdf0ee;
+  }
+
+  .admin-dashboard__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+  }
+
+  .admin-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: var(--space-4);
+    margin-bottom: var(--space-4);
+  }
+
+  .admin-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+  }
+
+  .admin-list {
+    list-style: none;
+    margin: var(--space-3) 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .admin-list a {
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .admin-list a:hover {
+    text-decoration: underline;
+  }
+
+  .admin-empty {
+    color: var(--color-text-muted);
+  }
+
+  .admin-badge {
+    display: inline-block;
+    margin-left: var(--space-2);
+    font-size: 0.75rem;
+    padding: 0.1rem 0.5rem;
+    border-radius: 999px;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+  }
+
+  .admin-badge--accent {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+</style>
