@@ -1,15 +1,9 @@
 ---
-import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PillarHub from '../components/PillarHub.astro';
-import TipCard from '../components/TipCard.astro';
 import ChatWidget from '../components/ChatWidget.astro';
 import { pillars } from '../data/pillars';
 import home from '../content/pages/home.json';
-
-const featuredTips = (await getCollection('tips', ({ data }) => data.featured && !data.draft))
-  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
-  .slice(0, 5);
 ---
 <BaseLayout
   title="Home"
@@ -49,18 +43,6 @@ const featuredTips = (await getCollection('tips', ({ data }) => data.featured &&
       <PillarHub pillars={pillars} />
     </div>
   </section>
-
-  {featuredTips.length > 0 && (
-    <section class="section section--muted">
-      <div class="container">
-        <p class="eyebrow">{home.recentPicksEyebrow}</p>
-        <h2>{home.recentPicksHeading}</h2>
-        <div class="grid-tips">
-          {featuredTips.map((tip) => <TipCard tip={tip} showPillarLink />)}
-        </div>
-      </div>
-    </section>
-  )}
 
   <section class="section section--muted">
     <div class="container">
