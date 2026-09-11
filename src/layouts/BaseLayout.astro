@@ -29,12 +29,9 @@ const { title, description, transparentHeader = false } = Astro.props;
     <script>
       const identity = window.netlifyIdentity;
       if (identity) {
-        identity.on('init', (user) => {
-          if (!user) {
-            identity.on('login', () => {
-              document.location.href = '/admin/';
-            });
-          }
+        identity.on('login', () => {
+          identity.close();
+          document.location.href = '/admin/';
         });
       }
     </script>
