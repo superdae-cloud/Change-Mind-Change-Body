@@ -1,0 +1,147 @@
+---
+import type { Pillar } from '../data/pillars';
+import PillarCard from './PillarCard.astro';
+
+interface Props {
+  pillars: Pillar[];
+}
+const { pillars } = Astro.props;
+const angleStep = 360 / pillars.length;
+---
+<div class="pillar-hub">
+  <a href="/daily-drops" class="hub-center">
+    <span class="hub-center__emoji" aria-hidden="true">📸</span>
+    <span class="hub-center__title">Daily Drops</span>
+    <span class="hub-center__sub">Share your story</span>
+  </a>
+  {pillars.map((pillar, i) => (
+    <a
+      href={`/${pillar.slug}`}
+      class="hub-node"
+      style={`--angle: ${i * angleStep}deg; --pillar-color: ${pillar.color}`}
+    >
+      <span class="hub-node__emoji" aria-hidden="true">{pillar.emoji}</span>
+      <span class="hub-node__title">{pillar.title}</span>
+    </a>
+  ))}
+</div>
+
+<div class="pillar-hub-fallback">
+  <a href="/daily-drops" class="pillar-card pillar-card--daily-drops" style="--pillar-color: var(--color-accent)">
+    <span class="pillar-card__emoji" aria-hidden="true">📸</span>
+    <h3>Daily Drops</h3>
+    <p>Share your photos, videos, and story with the community.</p>
+    <span class="pillar-card__link">Share yours &rarr;</span>
+  </a>
+  <div class="grid-pillars">
+    {pillars.map((pillar) => <PillarCard pillar={pillar} />)}
+  </div>
+</div>
+
+<style>
+  .pillar-hub {
+    display: none;
+    position: relative;
+    width: 560px;
+    max-width: 100%;
+    aspect-ratio: 1;
+    margin-inline: auto;
+  }
+
+  .hub-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 190px;
+    height: 190px;
+    margin: -95px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: var(--color-brand);
+    color: var(--color-bg);
+    text-decoration: none;
+    box-shadow: var(--shadow);
+    padding: var(--space-2);
+    z-index: 2;
+    transition: transform 0.15s ease;
+  }
+
+  .hub-center:hover {
+    transform: scale(1.04);
+  }
+
+  .hub-center__emoji {
+    font-size: 2rem;
+  }
+
+  .hub-center__title {
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-top: var(--space-1);
+  }
+
+  .hub-center__sub {
+    font-size: 0.8rem;
+    opacity: 0.8;
+  }
+
+  .hub-node {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 128px;
+    height: 128px;
+    margin: -64px;
+    transform: rotate(var(--angle)) translate(198px) rotate(calc(-1 * var(--angle)));
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: var(--color-surface);
+    border: 3px solid var(--pillar-color);
+    text-decoration: none;
+    color: var(--color-text);
+    box-shadow: var(--shadow);
+    padding: var(--space-1);
+    z-index: 1;
+    transition: transform 0.15s ease;
+  }
+
+  .hub-node:hover {
+    transform: rotate(var(--angle)) translate(198px) rotate(calc(-1 * var(--angle))) scale(1.06);
+  }
+
+  .hub-node__emoji {
+    font-size: 1.5rem;
+  }
+
+  .hub-node__title {
+    font-weight: 700;
+    font-size: 0.85rem;
+    margin-top: var(--space-1);
+  }
+
+  .pillar-hub-fallback {
+    display: block;
+  }
+
+  .pillar-card--daily-drops {
+    margin-bottom: var(--space-4);
+  }
+
+  @media (min-width: 760px) {
+    .pillar-hub {
+      display: block;
+    }
+
+    .pillar-hub-fallback {
+      display: none;
+    }
+  }
+</style>

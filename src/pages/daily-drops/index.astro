@@ -1,0 +1,207 @@
+---
+export const prerender = false;
+
+import { getStore } from '@netlify/blobs';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Hero from '../../components/Hero.astro';
+
+const store = getStore('daily-drops-submissions');
+const { blobs } = await store.list();
+const all = await Promise.all(blobs.map((entry) => store.get(entry.key, { type: 'json' })));
+
+const approved = (all.filter((s): s is any => !!s && s.status === 'approved') as any[])
+  .sort((a, b) => b.submittedAt.localeCompare(a.submittedAt));
+---
+<BaseLayout
+  title="Daily Drops"
+  description="Share your photos, videos, and story with the Change Mind, Change Body community."
+>
+  <Hero
+    eyebrow="Daily Drops"
+    title="Share your story"
+    subtitle="Post a photo, drop a link to your video, and tell us what's working for you. Submissions are reviewed before they go live."
+  />
+
+  <section class="section">
+    <div class="container">
+      <form class="drop-form" id="drop-form">
+        <label for="drop-name">Name (optional)</label>
+        <input id="drop-name" name="name" type="text" maxlength="100" placeholder="How should we credit you?" />
+
+        <label for="drop-story">Your story</label>
+        <textarea id="drop-story" name="story" rows="4" maxlength="2000" placeholder="What have you been up to?"></textarea>
+
+        <label for="drop-photo">Photo (optional)</label>
+        <input id="drop-photo" name="photo" type="file" accept="image/jpeg,image/png,image/gif,image/webp" />
+
+        <label for="drop-video">Video link (optional)</label>
+        <input id="drop-video" name="videoUrl" type="url" placeholder="YouTube, Instagram, TikTok, or Vimeo link" />
+
+        <button type="submit" class="button" id="drop-submit">Submit</button>
+      </form>
+      <p class="drop-status" id="drop-status" hidden></p>
+      <p class="drop-review-link" id="drop-review-link" hidden>
+        <a href="/daily-drops/review">Review pending submissions &rarr;</a>
+      </p>
+    </div>
+  </section>
+
+  {approved.length > 0 && (
+    <section class="section section--muted">
+      <div class="container">
+        <p class="eyebrow">Community</p>
+        <h2>Recent drops</h2>
+        <div class="drop-grid">
+          {approved.map((s) => (
+            <article class="drop-card">
+              {s.imageFilename && (
+                <img src={`/api/daily-drops/images/${s.imageFilename}`} alt={`Photo from ${s.name}`} />
+              )}
+              {s.videoUrl && (
+                <a class="drop-card__video" href={s.videoUrl} target="_blank" rel="noopener noreferrer">
+                  Watch video &rarr;
+                </a>
+              )}
+              {s.story && <p class="drop-card__story">{s.story}</p>}
+              <p class="drop-card__name">— {s.name}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+</BaseLayout>
+
+<style>
+  .drop-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    max-width: 640px;
+  }
+
+  .drop-form label {
+    font-weight: 700;
+    margin-top: var(--space-2);
+  }
+
+  .drop-form input,
+  .drop-form textarea {
+    font: inherit;
+    padding: var(--space-2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+  }
+
+  .drop-form textarea {
+    resize: vertical;
+  }
+
+  .drop-form button {
+    align-self: flex-start;
+    margin-top: var(--space-3);
+    cursor: pointer;
+  }
+
+  .drop-form button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .drop-status {
+    max-width: 640px;
+    margin-top: var(--space-3);
+    font-weight: 600;
+  }
+
+  .drop-status--error {
+    color: #b3261e;
+  }
+
+  .drop-status--success {
+    color: #2c9e4a;
+  }
+
+  .drop-review-link {
+    max-width: 640px;
+    margin-top: var(--space-2);
+  }
+
+  .drop-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: var(--space-4);
+  }
+
+  .drop-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: var(--space-4);
+  }
+
+  .drop-card img {
+    border-radius: var(--radius);
+    margin-bottom: var(--space-2);
+  }
+
+  .drop-card__video {
+    display: inline-block;
+    font-weight: 700;
+    color: var(--color-accent);
+    margin-bottom: var(--space-2);
+  }
+
+  .drop-card__story {
+    white-space: pre-wrap;
+  }
+
+  .drop-card__name {
+    color: var(--color-text-muted);
+    margin-bottom: 0;
+  }
+</style>
+
+<script>
+  const form = document.getElementById('drop-form') as HTMLFormElement;
+  const submitButton = document.getElementById('drop-submit') as HTMLButtonElement;
+  const statusBox = document.getElementById('drop-status') as HTMLParagraphElement;
+  const reviewLink = document.getElementById('drop-review-link') as HTMLParagraphElement;
+
+  if (window.netlifyIdentity?.currentUser()) {
+    reviewLink.hidden = false;
+  }
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    submitButton.disabled = true;
+    submitButton.textContent = 'Submitting...';
+    statusBox.hidden = false;
+    statusBox.classList.remove('drop-status--error', 'drop-status--success');
+    statusBox.textContent = 'Submitting...';
+
+    try {
+      const response = await fetch('/api/daily-drops/submit', {
+        method: 'POST',
+        body: new FormData(form),
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error ?? 'Something went wrong');
+      }
+
+      statusBox.classList.add('drop-status--success');
+      statusBox.textContent = "Thanks! Your submission is in for review — we'll post it once it's approved.";
+      form.reset();
+    } catch (error) {
+      statusBox.classList.add('drop-status--error');
+      statusBox.textContent = error instanceof Error ? error.message : 'Something went wrong';
+    } finally {
+      submitButton.disabled = false;
+      submitButton.textContent = 'Submit';
+    }
+  });
+</script>

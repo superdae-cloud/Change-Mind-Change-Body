@@ -1,7 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import PillarCard from '../components/PillarCard.astro';
+import PillarHub from '../components/PillarHub.astro';
 import TipCard from '../components/TipCard.astro';
 import ChatWidget from '../components/ChatWidget.astro';
 import { pillars } from '../data/pillars';
@@ -46,9 +46,7 @@ const featuredTips = (await getCollection('tips', ({ data }) => data.featured &&
     <div class="container">
       <p class="eyebrow">{home.pillarsEyebrow}</p>
       <h2>{home.pillarsHeading}</h2>
-      <div class="grid-pillars">
-        {pillars.map((pillar) => <PillarCard pillar={pillar} />)}
-      </div>
+      <PillarHub pillars={pillars} />
     </div>
   </section>
 

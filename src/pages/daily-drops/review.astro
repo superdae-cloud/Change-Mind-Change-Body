@@ -1,0 +1,159 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Hero from '../../components/Hero.astro';
+---
+<BaseLayout title="Review Daily Drops" description="Review pending Daily Drops submissions.">
+  <Hero eyebrow="Admin" title="Review submissions" subtitle="Approve or reject pending Daily Drops before they go live." />
+
+  <section class="section">
+    <div class="container">
+      <p id="review-login-prompt">
+        <button type="button" class="button" id="review-login-button">Log in to review</button>
+      </p>
+      <div id="review-list" hidden></div>
+      <p id="review-empty" hidden>No pending submissions.</p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .review-item {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: var(--space-4);
+    margin-bottom: var(--space-4);
+  }
+
+  .review-item img {
+    max-width: 320px;
+    border-radius: var(--radius);
+    margin-bottom: var(--space-2);
+  }
+
+  .review-item__meta {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+  }
+
+  .review-item__actions {
+    display: flex;
+    gap: var(--space-2);
+    margin-top: var(--space-3);
+  }
+
+  .review-item__actions button {
+    cursor: pointer;
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius);
+    border: 2px solid var(--color-border);
+    font-weight: 700;
+    font: inherit;
+  }
+
+  .review-approve {
+    background: #2c9e4a;
+    border-color: #2c9e4a;
+    color: #fff;
+  }
+
+  .review-reject {
+    background: #b3261e;
+    border-color: #b3261e;
+    color: #fff;
+  }
+</style>
+
+<script>
+  const loginPrompt = document.getElementById('review-login-prompt') as HTMLParagraphElement;
+  const loginButton = document.getElementById('review-login-button') as HTMLButtonElement;
+  const listEl = document.getElementById('review-list') as HTMLDivElement;
+  const emptyEl = document.getElementById('review-empty') as HTMLParagraphElement;
+
+  loginButton.addEventListener('click', () => {
+    window.netlifyIdentity?.open('login');
+  });
+
+  function renderItem(s: any): HTMLElement {
+    const el = document.createElement('div');
+    el.className = 'review-item';
+
+    let html = `<p class="review-item__meta">${s.status.toUpperCase()} — submitted ${new Date(s.submittedAt).toLocaleString()}</p>`;
+    if (s.imageUrl) html += `<img src="${s.imageUrl}" alt="Submitted photo" />`;
+    if (s.videoUrl) html += `<p><a href="${s.videoUrl}" target="_blank" rel="noopener noreferrer">${s.videoUrl}</a></p>`;
+    if (s.story) html += `<p>${s.story.replace(/</g, '&lt;')}</p>`;
+    html += `<p><strong>— ${s.name}</strong></p>`;
+
+    if (s.status === 'pending') {
+      html += `<div class="review-item__actions">
+        <button class="review-approve" data-id="${s.id}" data-action="approve">Approve</button>
+        <button class="review-reject" data-id="${s.id}" data-action="reject">Reject</button>
+      </div>`;
+    }
+
+    el.innerHTML = html;
+    return el;
+  }
+
+  async function loadSubmissions() {
+    const user = window.netlifyIdentity?.currentUser();
+    if (!user) return;
+
+    loginPrompt.hidden = true;
+    const token = await user.jwt();
+
+    const response = await fetch('/api/daily-drops/review', {
+      headers: { authorization: `Bearer ${token}` },
+    });
+
+    if (!response.ok) {
+      listEl.hidden = true;
+      emptyEl.hidden = false;
+      emptyEl.textContent = 'Could not load submissions — try logging in again.';
+      return;
+    }
+
+    const submissions: any[] = await response.json();
+    listEl.innerHTML = '';
+
+    if (submissions.length === 0) {
+      listEl.hidden = true;
+      emptyEl.hidden = false;
+      return;
+    }
+
+    emptyEl.hidden = true;
+    listEl.hidden = false;
+    for (const s of submissions) listEl.appendChild(renderItem(s));
+
+    listEl.querySelectorAll('button[data-action]').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const id = (btn as HTMLElement).dataset.id!;
+        const action = (btn as HTMLElement).dataset.action!;
+        (btn as HTMLButtonElement).disabled = true;
+
+        const freshToken = await window.netlifyIdentity!.currentUser()!.jwt();
+        await fetch('/api/daily-drops/moderate', {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json',
+            authorization: `Bearer ${freshToken}`,
+          },
+          body: JSON.stringify({ id, action }),
+        });
+
+        loadSubmissions();
+      });
+    });
+  }
+
+  window.netlifyIdentity?.on('init', (user: unknown) => {
+    if (user) loadSubmissions();
+  });
+  window.netlifyIdentity?.on('login', () => loadSubmissions());
+
+  if (window.netlifyIdentity?.currentUser()) {
+    loadSubmissions();
+  }
+</script>
