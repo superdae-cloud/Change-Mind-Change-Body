@@ -2,6 +2,8 @@ backend:
   name: git-gateway
   branch: main
 
+publish_mode: editorial_workflow
+
 # Lets you test the CMS locally with `npx decap-server` running alongside `npm run dev`,
 # without needing Netlify Identity/Git Gateway configured yet.
 local_backend: true
@@ -17,6 +19,7 @@ collections:
     folder: "src/content/tips/exercise"
     create: true
     slug: "{{slug}}"
+    preview_path: "exercise"
     identifier_field: title
     fields:
       - { label: "Title", name: "title", widget: "string" }
@@ -34,6 +37,7 @@ collections:
     folder: "src/content/tips/diet"
     create: true
     slug: "{{slug}}"
+    preview_path: "diet"
     identifier_field: title
     fields:
       - { label: "Title", name: "title", widget: "string" }
@@ -51,6 +55,7 @@ collections:
     folder: "src/content/tips/supplements"
     create: true
     slug: "{{slug}}"
+    preview_path: "supplements"
     identifier_field: title
     fields:
       - { label: "Title", name: "title", widget: "string" }
@@ -68,6 +73,7 @@ collections:
     folder: "src/content/tips/mental-health"
     create: true
     slug: "{{slug}}"
+    preview_path: "mental-health"
     identifier_field: title
     fields:
       - { label: "Title", name: "title", widget: "string" }
@@ -85,6 +91,7 @@ collections:
     folder: "src/content/tips/immune-health"
     create: true
     slug: "{{slug}}"
+    preview_path: "immune-health"
     identifier_field: title
     fields:
       - { label: "Title", name: "title", widget: "string" }
@@ -102,6 +109,7 @@ collections:
     folder: "src/content/tips/bro-science"
     create: true
     slug: "{{slug}}"
+    preview_path: "bro-science"
     identifier_field: title
     fields:
       - { label: "Title", name: "title", widget: "string" }
@@ -120,6 +128,7 @@ collections:
       - label: "Pillars"
         name: "pillars"
         file: "src/data/pillars.json"
+        preview_path: ""
         fields:
           - name: "pillars"
             label: "Pillars"
@@ -140,6 +149,7 @@ collections:
       - label: "Home Page"
         name: "home"
         file: "src/content/pages/home.json"
+        preview_path: ""
         fields:
           - { label: "Hero Eyebrow", name: "heroEyebrow", widget: "string" }
           - { label: "Hero Title", name: "heroTitle", widget: "string" }
@@ -158,6 +168,7 @@ collections:
       - label: "About Page"
         name: "about"
         file: "src/content/pages/about.json"
+        preview_path: "about"
         fields:
           - { label: "Hero Eyebrow", name: "heroEyebrow", widget: "string" }
           - { label: "Hero Title", name: "heroTitle", widget: "string" }
